@@ -1,0 +1,10 @@
+# logged houses (per player data)
+Houses/*.dat
+
+# dev dumps
+target_dump.dat
+locate_dump.dat
+api_discovery.dat
+
+# status dot position
+ui.dat
