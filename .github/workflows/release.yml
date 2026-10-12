@@ -17,8 +17,10 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build HomeDB.zip
+        id: build
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           mkdir -p build/HomeDB
           # addon files only: api.lua is the game's API stub and the docs are for development
           cp main.lua logbook.lua locate.lua statusdot.lua regionmap.lua build/HomeDB/
@@ -33,6 +35,6 @@ jobs:
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
-          name: HomeDB ${{ github.ref_name }}
+          name: ${{ steps.build.outputs.version }}
           files: HomeDB.zip
           generate_release_notes: true
