@@ -1,0 +1,38 @@
+# Pushing a version tag (1.0.0 or v1.0.0) builds HomeDB.zip and publishes it as a GitHub release.
+name: Release
+
+on:
+  push:
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build HomeDB.zip
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          mkdir -p build/HomeDB
+          # addon files only: api.lua is the game's API stub and the docs are for development
+          cp main.lua logbook.lua locate.lua statusdot.lua regionmap.lua build/HomeDB/
+          cp -r images build/HomeDB/
+          mkdir -p build/HomeDB/Houses
+          cp Houses/empty.keep build/HomeDB/Houses/
+          # the version shown in game follows the tag
+          sed -i -E "s/^(\s*version = )\"[^\"]*\"/\1\"${VERSION}\"/" build/HomeDB/main.lua
+          grep -n "version = " build/HomeDB/main.lua
+          cd build && zip -r ../HomeDB.zip HomeDB
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: HomeDB ${{ github.ref_name }}
+          files: HomeDB.zip
+          generate_release_notes: true
