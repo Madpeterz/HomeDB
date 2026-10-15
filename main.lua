@@ -7,8 +7,8 @@ local locate = require("HomeDB/locate")
 local HomeDB = {
 	name = "HomeDB",
 	author = "Madpeter",
-	version = "1.0.1",
-	desc = "Logs houses you target: building, owner and the house's own coordinates"
+	version = "1.0.2",
+	desc = "Logs houses you target"
 }
 
 local function runSafe(fn)
