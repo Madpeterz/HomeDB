@@ -313,7 +313,26 @@ local function setPosition(entry, lon, lat, approx)
 	entry.lon = string.format("%.6f", lon)
 	entry.lat = string.format("%.6f", lat)
 	entry.location = decimalToSextant(lon, lat)
-	entry.approx = approx or nil
+	entry.approx = approx == true
+end
+
+-- not known from a target scan; entries from other sources may fill these in
+local NOT_AVAILABLE = "na"
+
+-- fields every entry carries (see the house file spec); existing values are kept
+local function fillSpecFields(entry)
+	if entry.building_type == nil then
+		entry.building_type = NOT_AVAILABLE
+	end
+	if entry.status == nil then
+		entry.status = NOT_AVAILABLE
+	end
+	if entry.status_at == nil then
+		entry.status_at = NOT_AVAILABLE
+	end
+	if entry.approx == nil then
+		entry.approx = false
+	end
 end
 
 -- region code ("N", "H", "Sea", ...) and name, from WorldSatNav's region map
@@ -352,6 +371,7 @@ local function saveHouse(building, owner, lon, lat, approx)
 		}
 		setPosition(entry, lon, lat, approx)
 		setRegion(entry)
+		fillSpecFields(entry)
 		path = cellPath(lon, lat)
 		list = readList(path)
 		list[#list + 1] = entry
@@ -384,6 +404,7 @@ local function saveHouse(building, owner, lon, lat, approx)
 		changes[#changes + 1] = "exact position " .. formatSextant(entry.location)
 	end
 	setRegion(entry)
+	fillSpecFields(entry)
 	entry.last_seen = seen
 	-- no longer kept; drop it from entries saved by earlier versions
 	entry.history = nil
